@@ -8,6 +8,7 @@ POUŽITÉ TECHNOLOGIE:
   4. Windows.h - použito pro nastavení kódování UTF-8
 
 POUŽITÍ:
+
 Program načítá text z ______ a odesílá ho na API Morphodity. Následně jsou získaná XML data zpracována a analyzována za pomocí jednotlivých funkcí. 
 Výstup programu pak zahrnuje:
   1. Počet výskytů jednotlivých slov
