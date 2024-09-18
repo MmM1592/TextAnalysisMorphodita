@@ -88,7 +88,8 @@ bool processJsonResponse(std::string &buffer, std::unordered_map<std::string, in
         }
 
         processTokens(doc, hashMapWordLemma, hashMapPunctuation, hashMapWordClass);
-    } catch (json::parse_error &e) {
+    } 
+    catch (json::parse_error &e) {
         std::cout << "JSON error" << std::endl;
         return false;
     }
@@ -122,7 +123,8 @@ void exportDataToCSV(std::unordered_map<std::string, int> &hashMapWordLemma,
         csvFile1.close();
 
         std::cout << "Data byla exportována do souboru obecnaData.csv\n";
-    } else {
+    } 
+    else {
         std::cout << "Nepodařilo se exportovat data do CSV souboru" << std::endl;
     }
 
@@ -162,7 +164,8 @@ void exportDataToCSV(std::unordered_map<std::string, int> &hashMapWordLemma,
 
         std::cout << "Data byla exportována do souboru list.csv\n";
 
-    } else {
+    } 
+    else {
         std::cout << "Nepodařilo se exportovat data do CSV souboru" << std::endl;
     }
 }
