@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <regex>
 #include <windows.h>
+#include <fstream>
 
 //jednodušší práce s JSON
 using json = nlohmann::json;
@@ -36,11 +37,12 @@ std::string getDataWithCurl(const std::string &url) {
             std::cout << "curl_easy_perform() failed" << std::endl;
             return "";
         }
-    } else {
+    } 
+    else {
         std::cout << "cURL initialization failed" << std::endl;
         return "";
     }
-    std::cout << buffer << std::endl;
+    //std::cout << buffer << std::endl;
     return buffer;
 }
 
@@ -60,7 +62,8 @@ void processTokens(pugi::xml_document &doc,
             //uložení slov a znamének do map
             if (std::regex_match(form, punctuationRegex)) {
                 hashMapPunctuation[form] += 1;
-            } else {
+            } 
+            else {
                 hashMapWordLemma[lemma] += 1;
                 hashMapWordClass[tag] += 1;
             }
@@ -92,66 +95,82 @@ bool processJsonResponse(std::string &buffer, std::unordered_map<std::string, in
     return true;
 }
 
-//výpis slov, znamének a jejich výskytů v textu
-void listTextElements(std::unordered_map<std::string, int> &hashMapWordLemma, std::unordered_map<std::string, int> &hashMapPunctuation) {
-    for (auto i : hashMapWordLemma) {
-        std::cout << u8"Slovo: " << i.first << u8" Počet výskytů: " << i.second << std::endl;
-    }
+void exportDataToCSV(std::unordered_map<std::string, int> &hashMapWordLemma,
+    std::unordered_map<std::string, int> &hashMapPunctuation,
+    std::unordered_map<std::string, int> &hashMapWordClass) {
 
-    for (auto i : hashMapPunctuation) {
-        std::cout << u8"Znaménko: " << i.first << u8" Počet výskytů: " << i.second << std::endl;
-    }
-}
+    //výpis obecných dat o textu do csv souboru obecnaData.csv
+    std::ofstream csvFile1("obecnaData.csv");
 
-//výpis četnosti slovních druhů
-void wordClassCount(std::unordered_map<std::string, int> &hashMapWordClass) {
-    std::cout << u8"Slovní druhy" << std::endl;
-    for (auto i: hashMapWordClass) {
-        std::cout << i.first << ": " << i.second << std::endl;
-    }
-}
-
-//výpočet počtu slov
-int wordCount(std::unordered_map<std::string, int> &hashMapWordLemma) {
-    int totalWordCount = 0;
-
-    for (auto &pair : hashMapWordLemma) {
-        totalWordCount += pair.second;
-    }
-    std::cout << u8"Celkový počet slov: ";
-    return totalWordCount;
-}
-
-//nalezení nejpoužívanějšího slova
-void mostUsedWord(std::unordered_map<std::string, int> &hashMapWordLemma) {
-    if (hashMapWordLemma.empty()) {
-        std::cout << u8"Žádná slova k analýze." << std::endl;
-        return;
-    }
-
-    int maxCount = 0; //nejvyšší počet výskytů
-    for (const auto &pair : hashMapWordLemma) {
-        if (pair.second > maxCount) {
-            maxCount = pair.second;
+    if (csvFile1.is_open()) {
+        //zjištění počtu slov
+        int totalWords = 0;
+        for (auto &pair : hashMapWordLemma) {
+            totalWords += pair.second;
         }
+
+        //nalezení nejpoužívanějšíáho slova
+        auto mostFrequentWord = std::max_element(hashMapWordLemma.begin(), hashMapWordLemma.end(),
+            [](auto &a, auto &b) {
+            return a.second < b.second;
+        });
+
+        //zápis počtu slov a nejpoužívanějšího slova
+        csvFile1 << u8"POČET SLOV," << totalWords << "\n";
+        csvFile1 << u8"NEJPOUŽÍVANĚJŠÍ SLOVO," << mostFrequentWord->first << "," << mostFrequentWord->second << "\n";
+
+        csvFile1.close();
+
+        std::cout << "Data byla exportována do souboru obecnaData.csv\n";
+    } else {
+        std::cout << "Nepodařilo se exportovat data do CSV souboru" << std::endl;
     }
 
-    std::vector<std::string> mostUsedWords; //seznam všech slov s nejvyšším počtem výskytů
-    for (auto &pair : hashMapWordLemma) {
-        if (pair.second == maxCount) {
-            mostUsedWords.push_back(pair.first);
+    //výpis jednotlivých slov, slovních druhů a interpunkčních znamének a jejich četnosti do csv souboru list.csv 
+    std::ofstream csvFile2("list.csv");
+
+    if (csvFile2.is_open()) {
+        writeUtf8BOM(csvFile2);
+        //výpis slov
+        csvFile2 << u8"SLOVA,POČET\n";
+        for (auto &pair : hashMapWordLemma) {
+            csvFile2 << pair.first << "," << pair.second << "\n";
         }
-    }
 
-    std::cout << u8"Nejpoužívanější slova jsou: ";
-    for (auto &word : mostUsedWords) {
-        std::cout << word << " ";
+        csvFile2 << "\n"; //oddělení řádků
+
+        //výpis interpunkčních znamének
+        csvFile2 << u8"INTERPUNKČNÍ ZNAMÉNKA,POČET\n";
+        for (auto &pair : hashMapPunctuation) {
+            if (pair.first == ",") {
+                csvFile2 << u8"čárka" << "," << pair.second << "\n";
+            }
+            else {
+                csvFile2 << pair.first << "," << pair.second << "\n";
+            }
+        }
+
+        csvFile2 << "\n"; //oddělení řádků
+
+        //výpis slovních druhů
+        csvFile2 << u8"SLOVNÍ DRUHY,POČET\n";
+        for (auto &pair : hashMapWordClass) {
+            csvFile2 << pair.first << "," << pair.second << "\n";
+        }
+
+        csvFile2.close();
+
+        std::cout << "Data byla exportována do souboru list.csv\n";
+
+    } else {
+        std::cout << "Nepodařilo se exportovat data do CSV souboru" << std::endl;
     }
-    std::cout << "(" << maxCount << u8" krát)" << std::endl;
 }
 
-
-
+void writeUtf8BOM(std::ofstream &file) {
+    const char bom[] = {static_cast<char>(0xEF), static_cast<char>(0xBB), static_cast<char>(0xBF)};
+    file.write(bom, sizeof(bom));
+} 
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
@@ -171,13 +190,8 @@ int main() {
     //zpracování JSON odpovědi
     if (!processJsonResponse(buffer, hashMapWordLemma, hashMapPunctuation, hashMapWordClass)) return 1;
 
-    //výpis prvků
-    listTextElements(hashMapWordLemma, hashMapPunctuation);
-
-    //vypsání výsledků
-    std::cout << wordCount(hashMapWordLemma) << std::endl;
-    wordClassCount(hashMapWordClass);
-    mostUsedWord(hashMapWordLemma);
+    //zápis analyzovaných dat do CSV souborů
+    exportDataToCSV(hashMapWordLemma, hashMapPunctuation, hashMapWordClass);
 
     return 0;
 }

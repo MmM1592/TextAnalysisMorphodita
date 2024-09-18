@@ -1,0 +1,20 @@
+﻿SLOVA,POČET
+se_^(zvr._zájmeno/částice),1
+ale,1
+ahoj,2
+Tomáš_;Y,1
+a-1,1
+pes_^(zvíře),1
+člověk,1
+
+INTERPUNKČNÍ ZNAMÉNKA,POČET
+!,2
+čárka,2
+.,5
+?,2
+
+SLOVNÍ DRUHY,POČET
+J^-------------,2
+NNMS1-----A----,3
+II-------------,2
+P7--4----------,1

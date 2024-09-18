@@ -21,14 +21,10 @@ bool processJsonResponse(std::string &buffer, std::unordered_map<std::string, in
     std::unordered_map<std::string, int> &hashMapPunctuation,
     std::unordered_map<std::string, int> &hashMapWordClass);
 
-//výpis slov, znamének a jejich výskytù v textu
-void listTextElements(std::unordered_map<std::string, int> &hashMapWordLemma, std::unordered_map<std::string, int> &hashMapPunctuation);
+//export zanalyzovaných dat do CSV souborù 
+void exportDataToCSV(std::unordered_map<std::string, int> &hashMapWordLemma,
+    std::unordered_map<std::string, int> &hashMapPunctuation,
+    std::unordered_map<std::string, int> &hashMapWordClass);
 
-//výpis èetnosti slovních druhù
-void wordClassCount(std::unordered_map<std::string, int> &hashMapWordClass);
-
-//výpoèet poètu slov
-int wordCount(std::unordered_map<std::string, int> &hashMapWordLemma);
-
-//nalezení nejpoužívanìjšího slova
-void mostUsedWord(std::unordered_map<std::string, int> &hashMapWordLemma);
+//utf 8 kódování pøi zápisu do csv souborù
+void writeUtf8BOM(std::ofstream &file); 
