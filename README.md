@@ -9,20 +9,17 @@ POUŽITÉ TECHNOLOGIE:
 
 POUŽITÍ:
 
-Program načítá text z ______ a odesílá ho na API Morphodity. Následně jsou získaná XML data zpracována a analyzována za pomocí jednotlivých funkcí. 
-Výstup programu pak zahrnuje:
-  1. Počet výskytů jednotlivých slov
-  2. Počet výskytů interpunkčních znamének
-  3. Počet výskytů slovních druhů
-  4. Nejčastěji používaná slova
+Program načítá text z proměnné data a odesílá ho na API Morphodity. Následně jsou získaná XML data zpracována a analyzována za pomocí jednotlivých funkcí. 
+Výstup programu pak zahrnuje dva csv soubory:
+  1. list.csv - výpis jednotlivých slov, interpunkčních znamének, slovních druhů a jejich četnosti
+  2. obecnaData.csv - výpis počtu slov, nejpoužívanější slovo
+
 
 FUNKCE: 
   1. WriteCallBack: zpracovává odpovědi z libcurl
   2. getDataWithCurl: získává data z API Morphodity
   3. processTokens: ukládá jednotlivé tokeny z XML do hash map
   4. processJsonResponse: zpracovává JSON odpovědi a převádí je na XML
-  5. listTextElements
-  6. wordClassCount
-  7. wordCount
-  8. mostUsedWord
+  5. exportDataToCSV - exportování zanalyzovaných dat do csv souborů
+  6. writeUtf8BOM - pro zápis v UTF8 kódování do CSV souborů
 
